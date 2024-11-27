@@ -10,6 +10,11 @@
         display: flex;
         gap:10px;
     }
+    #search-bar{
+        margin-top: 20px;
+        display: flex;
+        gap:10px;
+    }
     </style>
 </head>
 <body>
@@ -23,6 +28,12 @@
         <button type="submit">Add Item</button>  
     </form>
     <h3>Items</h3>
+    <div id="search-bar">
+        <form id="search-item">
+            <input type="text" name="searchName" id="searchName" placeholder="Search an item" required>
+            <button type="submit">Search Item</button>
+        </form>
+    </div>
     <div id="items"></div>
 
 
@@ -64,7 +75,7 @@
                 <button onclick = "buyItem('2','${item.id}')">Buy 2</button>
                 <button onclick = "buyItem('3','${item.id}')">Buy 3</button> 
                 <form onsubmit="buyUnknown(event,'${item.id}')">
-                <input type="number" name="itemNos" placeholder="Buy N Items">
+                <input type="number" name="itemNos" placeholder="Buy N Items" required>
                 <button type="submit">Buy</button>
                 </form>
                 `
@@ -86,6 +97,38 @@
             await axios.put(`http://localhost:3000/stores/${id}/${number}`);
             getItems();
         }
+
+
+        document.getElementById('search-item').addEventListener('submit',
+        async function (event){
+            event.preventDefault();
+            const itemsContainer = document.getElementById('items');
+            const searchItemsResponse = await axios.get(`http://localhost:3000/stores/${event.target.searchName.value}`);
+            const item = searchItemsResponse.data;
+            event.target.searchName.value='';
+            itemsContainer.innerHTML = ''
+            const itemData = document.createElement('p');
+            if(typeof item ==="string"){
+                itemData.innerHTML = "no items found";
+                itemData.id = 'single-item'
+                itemsContainer.append(itemData);
+            }else{
+                itemData.innerHTML = `
+                ${item.name} - ${item.description} - ${item.price} INR  - ${item.quantity}
+                <button onclick = "buyItem('1','${item.id}')">Buy 1</button>
+                <button onclick = "buyItem('2','${item.id}')">Buy 2</button>
+                <button onclick = "buyItem('3','${item.id}')">Buy 3</button> 
+                <form onsubmit="buyUnknown(event,'${item.id}')">
+                <input type="number" name="itemNos" placeholder="Buy N Items" required>
+                <button type="submit">Buy</button>
+                </form>
+                <button onclick = "getItems()" >Show all items</button>
+                `
+                itemData.id = 'single-item'
+                itemsContainer.append(itemData);
+            }
+
+        })
 
         window.onload = getItems();
 

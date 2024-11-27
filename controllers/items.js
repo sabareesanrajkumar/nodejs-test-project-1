@@ -42,3 +42,18 @@ exports.buyItem = async (req, res, next) => {
     console.log(err);
   }
 };
+
+exports.searchItem = async (req, res, next) => {
+  const itemName = req.params.name;
+  const search = await Items.findOne({
+    where: {
+      name: itemName,
+    },
+  });
+
+  if (search) {
+    return res.status(200).json(search);
+  } else {
+    return res.send("no items found");
+  }
+};
